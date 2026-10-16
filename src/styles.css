@@ -101,5 +101,26 @@ button:disabled { opacity: 0.6; }
 .person { display: flex; flex-direction: column; gap: 4px; }
 .sets { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 2px; }
 .sets li { font-variant-numeric: tabular-nums; }
-.sets li span { margin-right: 4px; }
-.sets .link { padding: 0 4px; }
+.set-button {
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  border-bottom: 1px dashed var(--border);
+}
+.set-editor { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; }
+.set-editor input { padding: 6px 8px; min-width: 0; }
+.set-editor .row { align-items: center; gap: 4px; }
+
+.segmented { display: flex; gap: 4px; padding: 4px; background: var(--bg); border-radius: 10px; }
+.segmented button {
+  flex: 1;
+  padding: 8px;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted);
+}
+.segmented button.active { background: var(--card); color: var(--text); font-weight: 600; }

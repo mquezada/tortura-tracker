@@ -99,8 +99,16 @@ export default function SessionDetail() {
     loadItems()
   }
 
-  async function addSet(exerciseId: string, weight: number, reps: number) {
-    const { error } = await supabase.from('sets').insert({ session_id: id, exercise_id: exerciseId, weight_kg: weight, reps })
+  async function addSet(exerciseId: string, forUser: string, weight: number, reps: number) {
+    const { error } = await supabase
+      .from('sets')
+      .insert({ session_id: id, exercise_id: exerciseId, user_id: forUser, weight_kg: weight, reps })
+    if (error) setError(error.message)
+    else loadSets()
+  }
+
+  async function updateSet(setId: string, weight: number, reps: number) {
+    const { error } = await supabase.from('sets').update({ weight_kg: weight, reps }).eq('id', setId)
     if (error) setError(error.message)
     else loadSets()
   }
@@ -148,7 +156,8 @@ export default function SessionDetail() {
           profiles={profiles}
           userId={userId}
           sets={sets.filter((s) => s.exercise_id === item.exercise_id)}
-          onAddSet={(w, r) => addSet(item.exercise_id, w, r)}
+          onAddSet={(forUser, w, r) => addSet(item.exercise_id, forUser, w, r)}
+          onUpdateSet={updateSet}
           onDeleteSet={deleteSet}
           onRemove={() => removeExercise(item.id)}
         />
