@@ -1,0 +1,9 @@
+{
+  "name": "Tortura Tracker",
+  "short_name": "Tortura",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111318",
+  "theme_color": "#111318",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
