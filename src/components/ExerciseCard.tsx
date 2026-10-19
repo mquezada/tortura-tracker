@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Exercise, Profile, WorkoutSet } from '../supabase'
+import ExerciseThumb from './ExerciseThumb'
 
 interface Props {
   exercise: Exercise
@@ -10,6 +11,7 @@ interface Props {
   onUpdateSet: (setId: string, weight: number, reps: number) => void
   onDeleteSet: (setId: string) => void
   onRemove: () => void
+  onOpenImage: () => void
 }
 
 function parseSet(weight: string, reps: string) {
@@ -28,6 +30,7 @@ export default function ExerciseCard({
   onUpdateSet,
   onDeleteSet,
   onRemove,
+  onOpenImage,
 }: Props) {
   const [forUser, setForUser] = useState(userId)
   const [editing, setEditing] = useState<string | null>(null)
@@ -52,7 +55,12 @@ export default function ExerciseCard({
   return (
     <section className="card stack">
       <header className="topbar">
-        <h2>{exercise.name}</h2>
+        <div className="exercise-title">
+          <button className="thumb-button" onClick={onOpenImage} aria-label={`Imagen de ${exercise.name}`}>
+            <ExerciseThumb exercise={exercise} />
+          </button>
+          <h2>{exercise.name}</h2>
+        </div>
         {sets.length === 0 && (
           <button className="link muted" onClick={onRemove} aria-label="Quitar ejercicio">
             Quitar

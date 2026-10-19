@@ -132,3 +132,70 @@ button:disabled { opacity: 0.6; }
   color: var(--muted);
 }
 .segmented button.active { background: var(--card); color: var(--text); font-weight: 600; }
+
+.exercise-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.thumb-button { background: none; border: 0; padding: 0; flex-shrink: 0; }
+.thumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.thumb.empty { color: var(--muted); border-style: dashed; }
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sheet {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+@media (min-width: 700px) {
+  .overlay { align-items: center; }
+  .sheet { border-radius: 16px; }
+}
+
+.photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+.photos img { width: 100%; border-radius: 10px; background: var(--bg); }
+
+.emoji-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.emoji-row button {
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.results { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.results button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: left;
+  font-size: 0.85rem;
+}
+.results img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; background: var(--card); }
+.emoji-row button.active, .results button.active { border-color: var(--accent); outline: 1px solid var(--accent); }

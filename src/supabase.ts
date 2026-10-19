@@ -21,6 +21,8 @@ export interface Profile {
 export interface Exercise {
   id: string
   name: string
+  image_path: string | null
+  emoji: string | null
 }
 
 export interface RoutineDay {

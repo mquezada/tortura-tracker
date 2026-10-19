@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../auth'
 import { formatDate } from '../dates'
 import ExerciseCard from '../components/ExerciseCard'
+import ImagePicker, { type ImageChoice } from '../components/ImagePicker'
 
 export default function SessionDetail() {
   const { id = '' } = useParams()
@@ -22,12 +23,13 @@ export default function SessionDetail() {
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [catalog, setCatalog] = useState<Exercise[]>([])
   const [newExercise, setNewExercise] = useState('')
+  const [picking, setPicking] = useState<Exercise | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const loadItems = useCallback(async () => {
     const { data } = await supabase
       .from('session_exercises')
-      .select('id, exercise_id, position, exercises(id, name)')
+      .select('id, exercise_id, position, exercises(id, name, image_path, emoji)')
       .eq('session_id', id)
       .order('position')
     setItems((data as unknown as SessionExercise[]) ?? [])
@@ -58,7 +60,7 @@ export default function SessionDetail() {
       })
     supabase
       .from('exercises')
-      .select('id, name')
+      .select('id, name, image_path, emoji')
       .order('name')
       .then(({ data }) => setCatalog((data as Exercise[]) ?? []))
     loadItems()
@@ -83,10 +85,16 @@ export default function SessionDetail() {
 
     let exercise = catalog.find((x) => x.name.toLowerCase() === name.toLowerCase())
     if (!exercise) {
-      const { data, error } = await supabase.from('exercises').insert({ name }).select('id, name').single()
+      const { data, error } = await supabase
+        .from('exercises')
+        .insert({ name })
+        .select('id, name, image_path, emoji')
+        .single()
       if (error) return setError(error.message)
       exercise = data as Exercise
       setCatalog([...catalog, exercise].sort((a, b) => a.name.localeCompare(b.name)))
+      // Ejercicio nuevo: ofrecer elegirle imagen de inmediato
+      setPicking(exercise)
     }
     if (items.some((i) => i.exercise_id === exercise.id)) return setNewExercise('')
 
@@ -96,6 +104,14 @@ export default function SessionDetail() {
       .insert({ session_id: id, exercise_id: exercise.id, position })
     if (error) return setError(error.message)
     setNewExercise('')
+    loadItems()
+  }
+
+  async function saveImage(exercise: Exercise, choice: ImageChoice) {
+    setPicking(null)
+    const { error } = await supabase.from('exercises').update(choice).eq('id', exercise.id)
+    if (error) return setError(error.message)
+    setCatalog(catalog.map((x) => (x.id === exercise.id ? { ...x, ...choice } : x)))
     loadItems()
   }
 
@@ -160,6 +176,7 @@ export default function SessionDetail() {
           onUpdateSet={updateSet}
           onDeleteSet={deleteSet}
           onRemove={() => removeExercise(item.id)}
+          onOpenImage={() => setPicking(item.exercises)}
         />
       ))}
 
@@ -178,6 +195,14 @@ export default function SessionDetail() {
         </datalist>
         <button className="primary">Agregar</button>
       </form>
+
+      {picking && (
+        <ImagePicker
+          exercise={picking}
+          onSave={(choice) => saveImage(picking, choice)}
+          onClose={() => setPicking(null)}
+        />
+      )}
     </main>
   )
 }

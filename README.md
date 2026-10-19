@@ -37,12 +37,15 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
 - **Anotar serie:** elegir para quién (*Yo* o el otro), kg + reps → *+ Serie*. Los campos quedan con la última
   serie de esa persona para anotar la siguiente rápido.
 - **Editar o borrar una serie:** tocarla. Cualquiera de los dos puede editar las series del otro.
+- **Imagen del ejercicio:** al crear un ejercicio se abre un buscador (en inglés) con fotos de
+  [Free Exercise DB](https://github.com/yuhonas/free-exercise-db) (dominio público), o se puede elegir un emoji.
+  Tocar la miniatura muestra las fotos en grande y permite cambiarla.
 
 ## Modelo de datos
 | Tabla | Qué guarda |
 |---|---|
 | `profiles` | Nombre de cada usuario |
-| `exercises` | Catálogo de ejercicios |
+| `exercises` | Catálogo de ejercicios (con foto o emoji) |
 | `routine_days`, `routine_exercises` | La rutina (días y ejercicios con series/reps objetivo) |
 | `sessions` | Un entrenamiento compartido (fecha, día de rutina) |
 | `session_exercises` | Ejercicios de esa sesión |
