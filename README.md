@@ -41,6 +41,7 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
 - **Imagen del ejercicio:** al crear un ejercicio se abre un buscador (en inglés) con fotos de
   [Free Exercise DB](https://github.com/yuhonas/free-exercise-db) (dominio público), o se puede elegir un emoji.
   Tocar la miniatura muestra las fotos en grande y permite cambiarla.
+- **Renombrar un ejercicio:** tocar su nombre en la tarjeta. El cambio se ve en todas las sesiones.
 
 ## Modelo de datos
 | Tabla | Qué guarda |

@@ -12,6 +12,7 @@ interface Props {
   onDeleteSet: (setId: string) => void
   onRemove: () => void
   onOpenImage: () => void
+  onRename: (name: string) => Promise<boolean>
 }
 
 function parseSet(weight: string, reps: string) {
@@ -31,9 +32,11 @@ export default function ExerciseCard({
   onDeleteSet,
   onRemove,
   onOpenImage,
+  onRename,
 }: Props) {
   const [forUser, setForUser] = useState(userId)
   const [editing, setEditing] = useState<string | null>(null)
+  const [renaming, setRenaming] = useState<string | null>(null)
   const [weight, setWeight] = useState('')
   const [reps, setReps] = useState('')
   const lastForUser = sets.filter((s) => s.user_id === forUser).at(-1)
@@ -59,9 +62,30 @@ export default function ExerciseCard({
           <button className="thumb-button" onClick={onOpenImage} aria-label={`Imagen de ${exercise.name}`}>
             <ExerciseThumb exercise={exercise} size={88} />
           </button>
-          <h2>{exercise.name}</h2>
+          {renaming === null ? (
+            <button className="name-button" onClick={() => setRenaming(exercise.name)} aria-label="Editar nombre">
+              <h2>{exercise.name}</h2>
+            </button>
+          ) : (
+            <form
+              className="rename stack"
+              onSubmit={async (e) => {
+                e.preventDefault()
+                const name = renaming.trim()
+                if (!name || name === exercise.name || (await onRename(name))) setRenaming(null)
+              }}
+            >
+              <input aria-label="Nombre del ejercicio" value={renaming} onChange={(e) => setRenaming(e.target.value)} autoFocus />
+              <div className="row">
+                <button className="link">Guardar</button>
+                <button type="button" className="link muted" onClick={() => setRenaming(null)}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          )}
         </div>
-        {sets.length === 0 && (
+        {sets.length === 0 && renaming === null && (
           <button className="link muted" onClick={onRemove} aria-label="Quitar ejercicio">
             Quitar
           </button>

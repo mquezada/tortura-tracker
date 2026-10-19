@@ -223,3 +223,9 @@ button:disabled { opacity: 0.6; }
 }
 .suggestions li + li { border-top: 1px solid var(--border); }
 .suggestions button:active { background: var(--card); }
+
+.name-button { background: none; border: 0; padding: 0; color: inherit; text-align: left; min-width: 0; }
+.name-button h2 { text-decoration: underline dotted var(--border); text-underline-offset: 4px; }
+.exercise-title .rename { flex: 1; min-width: 0; gap: 4px; }
+.exercise-title .rename input { padding: 8px; }
+.exercise-title .rename .row { gap: 12px; }

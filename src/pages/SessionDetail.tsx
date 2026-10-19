@@ -124,6 +124,18 @@ export default function SessionDetail() {
     loadItems()
   }
 
+  async function renameExercise(exercise: Exercise, name: string) {
+    setError(null)
+    const { error } = await supabase.from('exercises').update({ name }).eq('id', exercise.id)
+    if (error) {
+      setError(error.code === '23505' ? `Ya existe un ejercicio llamado "${name}".` : error.message)
+      return false
+    }
+    setCatalog(catalog.map((x) => (x.id === exercise.id ? { ...x, name } : x)).sort((a, b) => a.name.localeCompare(b.name)))
+    loadItems()
+    return true
+  }
+
   async function addSet(exerciseId: string, forUser: string, weight: number, reps: number) {
     const { error } = await supabase
       .from('sets')
@@ -186,6 +198,7 @@ export default function SessionDetail() {
           onDeleteSet={deleteSet}
           onRemove={() => removeExercise(item.id)}
           onOpenImage={() => setPicking(item.exercises)}
+          onRename={(name) => renameExercise(item.exercises, name)}
         />
       ))}
 
