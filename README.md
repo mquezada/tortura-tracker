@@ -21,9 +21,10 @@ npm run dev
 ```
 
 ### 3. Crear las dos cuentas
-Abrir la app, tocar **Regístrate** y crear una cuenta cada uno.
-Después, en Supabase → **Authentication → Sign In / Providers**, desactivar *Allow new users to sign up*
-para que nadie más pueda registrarse.
+En Supabase → **Authentication → URL Configuration**, poner la URL del sitio como *Site URL* y agregarla en
+*Redirect URLs* (`https://<sitio>/**`). Después, en **Authentication → Users → Invite user**, invitar a cada
+persona por correo: el enlace abre la app para elegir contraseña. El nombre que se muestra en la app se cambia
+en la tabla `profiles` (`display_name`).
 
 ### 4. Publicar en Netlify
 En [netlify.com](https://netlify.com): *Add new site → Import an existing project*, elegir este repo y la rama `main`

@@ -49,8 +49,6 @@ export default function ExerciseCard({
     if (parsed) onAddSet(forUser, parsed.w, parsed.r)
   }
 
-  const name = (p: Profile) => (p.id === userId ? 'Yo' : p.display_name)
-
   return (
     <section className="card stack">
       <header className="topbar">
@@ -67,7 +65,7 @@ export default function ExerciseCard({
           const own = sets.filter((s) => s.user_id === p.id)
           return (
             <div key={p.id} className="person">
-              <h3>{name(p)}</h3>
+              <h3>{p.display_name}</h3>
               {own.length === 0 && <p className="muted small">—</p>}
               <ol className="sets">
                 {own.map((s) =>
@@ -112,7 +110,7 @@ export default function ExerciseCard({
                 className={forUser === p.id ? 'active' : ''}
                 onClick={() => setForUser(p.id)}
               >
-                {name(p)}
+                {p.display_name}
               </button>
             ))}
           </div>

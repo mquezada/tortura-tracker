@@ -24,7 +24,7 @@ export default function NewPassword() {
     <main className="page narrow">
       <h1 className="brand">Tortura Tracker</h1>
       <form className="card stack" onSubmit={submit}>
-        <h2>Elige una contraseña nueva</h2>
+        <h2>Elige tu contraseña</h2>
         <label>
           Contraseña nueva
           <input

@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { openedFromRecoveryLink, supabase } from './supabase'
+import { openedFromPasswordLink, supabase } from './supabase'
 
 interface AuthState {
   session: Session | null
   loading: boolean
-  // Entró con el enlace de "olvidé mi contraseña" y debe elegir una nueva
+  // Entró con un enlace de invitación o de recuperación y debe elegir contraseña
   recovering: boolean
   finishRecovery: () => void
 }
@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthState>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const [recovering, setRecovering] = useState(openedFromRecoveryLink)
+  const [recovering, setRecovering] = useState(openedFromPasswordLink)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

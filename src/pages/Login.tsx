@@ -2,8 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { supabase } from '../supabase'
 
 export default function Login() {
-  const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login')
-  const [name, setName] = useState('')
+  const [mode, setMode] = useState<'login' | 'reset'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +21,7 @@ export default function Login() {
         setNotice(`Si ${email} tiene cuenta, te llegará un correo con un enlace para elegir una contraseña nueva.`)
         setMode('login')
       }
-    } else if (mode === 'login') {
+    } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         setError(
@@ -32,18 +31,6 @@ export default function Login() {
               ? 'Email o contraseña incorrectos.'
               : error.message,
         )
-      }
-    } else {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { display_name: name }, emailRedirectTo: window.location.origin },
-      })
-      if (error) setError(error.message)
-      else if (!data.session) {
-        // Supabase pide confirmar el correo antes de entrar
-        setNotice(`Te enviamos un correo a ${email}. Ábrelo y confirma tu cuenta para poder entrar.`)
-        setMode('login')
       }
     }
     setBusy(false)
@@ -60,12 +47,6 @@ export default function Login() {
       <h1 className="brand">Tortura Tracker</h1>
       <form className="card stack" onSubmit={submit}>
         {mode === 'reset' && <p className="muted small">Te enviaremos un enlace para elegir una contraseña nueva.</p>}
-        {mode === 'signup' && (
-          <label>
-            Nombre
-            <input value={name} onChange={(e) => setName(e.target.value)} required />
-          </label>
-        )}
         <label>
           Email
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
@@ -79,7 +60,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              autoComplete="current-password"
             />
           </label>
         )}
@@ -94,17 +75,12 @@ export default function Login() {
           </p>
         )}
         <button className="primary" disabled={busy}>
-          {mode === 'login' ? 'Entrar' : mode === 'signup' ? 'Crear cuenta' : 'Enviar enlace'}
+          {mode === 'login' ? 'Entrar' : 'Enviar enlace'}
         </button>
         {mode === 'login' ? (
-          <>
-            <button type="button" className="link" onClick={() => switchTo('reset')}>
-              ¿Olvidaste tu contraseña?
-            </button>
-            <button type="button" className="link" onClick={() => switchTo('signup')}>
-              ¿No tienes cuenta? Regístrate
-            </button>
-          </>
+          <button type="button" className="link" onClick={() => switchTo('reset')}>
+            ¿Olvidaste tu contraseña?
+          </button>
         ) : (
           <button type="button" className="link" onClick={() => switchTo('login')}>
             Volver a entrar
