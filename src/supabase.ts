@@ -7,6 +7,9 @@ if (!url || !anonKey) {
   throw new Error('Faltan VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY (ver .env.example)')
 }
 
+// Leer antes de crear el cliente: Supabase limpia el hash de la URL al procesarlo
+export const openedFromRecoveryLink = window.location.hash.includes('type=recovery')
+
 export const supabase = createClient(url, anonKey)
 
 export interface Profile {
