@@ -23,7 +23,10 @@ export interface Exercise {
   name: string
   image_path: string | null
   emoji: string | null
+  unit: Unit
 }
+
+export type Unit = 'kg' | 'lb'
 
 export interface RoutineDay {
   id: string
@@ -51,7 +54,7 @@ export interface WorkoutSet {
   session_id: string
   exercise_id: string
   user_id: string
-  weight_kg: number
+  weight: number
   reps: number
   created_at: string
 }

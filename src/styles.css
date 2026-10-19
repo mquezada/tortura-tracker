@@ -229,3 +229,16 @@ button:disabled { opacity: 0.6; }
 .exercise-title .rename { flex: 1; min-width: 0; gap: 4px; }
 .exercise-title .rename input { padding: 8px; }
 .exercise-title .rename .row { gap: 12px; }
+
+.unit-label { display: flex; align-items: center; gap: 6px; }
+.unit-switch { display: inline-flex; padding: 2px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.unit-switch button {
+  padding: 0 8px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+.unit-switch button.active { background: var(--card); color: var(--text); font-weight: 600; }

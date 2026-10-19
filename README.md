@@ -47,11 +47,11 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
 | Tabla | Qué guarda |
 |---|---|
 | `profiles` | Nombre de cada usuario |
-| `exercises` | Catálogo de ejercicios (con foto o emoji) |
+| `exercises` | Catálogo de ejercicios (con foto o emoji, y unidad kg o lb) |
 | `routine_days`, `routine_exercises` | La rutina (días y ejercicios con series/reps objetivo) |
 | `sessions` | Un entrenamiento compartido (fecha, día de rutina) |
 | `session_exercises` | Ejercicios de esa sesión |
-| `sets` | Cada serie: persona, ejercicio, peso, repeticiones |
+| `sets` | Cada serie: persona, ejercicio, peso (en la unidad del ejercicio), repeticiones |
 
 ## Pendiente
 - Cargar la rutina (días y ejercicios).

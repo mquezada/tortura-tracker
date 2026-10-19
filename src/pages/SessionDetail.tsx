@@ -6,6 +6,7 @@ import {
   type Profile,
   type Session,
   type SessionExercise,
+  type Unit,
   type WorkoutSet,
 } from '../supabase'
 import { useAuth } from '../auth'
@@ -36,7 +37,7 @@ export default function SessionDetail() {
   const loadItems = useCallback(async () => {
     const { data } = await supabase
       .from('session_exercises')
-      .select('id, exercise_id, position, exercises(id, name, image_path, emoji)')
+      .select('id, exercise_id, position, exercises(id, name, image_path, emoji, unit)')
       .eq('session_id', id)
       .order('position')
     setItems((data as unknown as SessionExercise[]) ?? [])
@@ -67,7 +68,7 @@ export default function SessionDetail() {
       })
     supabase
       .from('exercises')
-      .select('id, name, image_path, emoji')
+      .select('id, name, image_path, emoji, unit')
       .order('name')
       .then(({ data }) => setCatalog((data as Exercise[]) ?? []))
     loadCatalog().then(setLibrary)
@@ -97,7 +98,7 @@ export default function SessionDetail() {
       const { data, error } = await supabase
         .from('exercises')
         .insert(fromLibrary ? { name: fromLibrary.name, image_path: `${fromLibrary.folder}/0.jpg` } : { name })
-        .select('id, name, image_path, emoji')
+        .select('id, name, image_path, emoji, unit')
         .single()
       if (error) return setError(error.message)
       exercise = data as Exercise
@@ -136,16 +137,23 @@ export default function SessionDetail() {
     return true
   }
 
+  async function changeUnit(exercise: Exercise, unit: Unit) {
+    const { error } = await supabase.from('exercises').update({ unit }).eq('id', exercise.id)
+    if (error) return setError(error.message)
+    setCatalog(catalog.map((x) => (x.id === exercise.id ? { ...x, unit } : x)))
+    loadItems()
+  }
+
   async function addSet(exerciseId: string, forUser: string, weight: number, reps: number) {
     const { error } = await supabase
       .from('sets')
-      .insert({ session_id: id, exercise_id: exerciseId, user_id: forUser, weight_kg: weight, reps })
+      .insert({ session_id: id, exercise_id: exerciseId, user_id: forUser, weight: weight, reps })
     if (error) setError(error.message)
     else loadSets()
   }
 
   async function updateSet(setId: string, weight: number, reps: number) {
-    const { error } = await supabase.from('sets').update({ weight_kg: weight, reps }).eq('id', setId)
+    const { error } = await supabase.from('sets').update({ weight: weight, reps }).eq('id', setId)
     if (error) setError(error.message)
     else loadSets()
   }
@@ -199,6 +207,7 @@ export default function SessionDetail() {
           onRemove={() => removeExercise(item.id)}
           onOpenImage={() => setPicking(item.exercises)}
           onRename={(name) => renameExercise(item.exercises, name)}
+          onChangeUnit={(unit) => changeUnit(item.exercises, unit)}
         />
       ))}
 

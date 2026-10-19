@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import type { Exercise, Profile, WorkoutSet } from '../supabase'
+import type { Exercise, Profile, Unit, WorkoutSet } from '../supabase'
 import ExerciseThumb from './ExerciseThumb'
 
 interface Props {
@@ -13,6 +13,7 @@ interface Props {
   onRemove: () => void
   onOpenImage: () => void
   onRename: (name: string) => Promise<boolean>
+  onChangeUnit: (unit: Unit) => void
 }
 
 function parseSet(weight: string, reps: string) {
@@ -33,6 +34,7 @@ export default function ExerciseCard({
   onRemove,
   onOpenImage,
   onRename,
+  onChangeUnit,
 }: Props) {
   const [forUser, setForUser] = useState(userId)
   const [editing, setEditing] = useState<string | null>(null)
@@ -44,7 +46,7 @@ export default function ExerciseCard({
   // Precargar con la última serie de la persona elegida para anotar rápido la siguiente
   useEffect(() => {
     if (lastForUser) {
-      setWeight(String(Number(lastForUser.weight_kg)))
+      setWeight(String(Number(lastForUser.weight)))
       setReps(String(lastForUser.reps))
     }
   }, [lastForUser?.id])
@@ -105,6 +107,7 @@ export default function ExerciseCard({
                     <li key={s.id}>
                       <SetEditor
                         set={s}
+                        unit={exercise.unit}
                         onSave={(w, r) => {
                           onUpdateSet(s.id, w, r)
                           setEditing(null)
@@ -119,7 +122,7 @@ export default function ExerciseCard({
                   ) : (
                     <li key={s.id}>
                       <button className="set-button" onClick={() => setEditing(s.id)} aria-label="Editar serie">
-                        {Number(s.weight_kg)} kg × {s.reps}
+                        {Number(s.weight)} {exercise.unit} × {s.reps}
                       </button>
                     </li>
                   ),
@@ -149,7 +152,23 @@ export default function ExerciseCard({
         )}
         <div className="row">
           <label className="grow">
-            kg
+            <span className="unit-label">
+              Peso
+              <span className="unit-switch" role="radiogroup" aria-label="Unidad">
+                {(['kg', 'lb'] as const).map((u) => (
+                  <button
+                    key={u}
+                    type="button"
+                    role="radio"
+                    aria-checked={exercise.unit === u}
+                    className={exercise.unit === u ? 'active' : ''}
+                    onClick={() => exercise.unit !== u && onChangeUnit(u)}
+                  >
+                    {u}
+                  </button>
+                ))}
+              </span>
+            </span>
             <input inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} required />
           </label>
           <label className="grow">
@@ -165,13 +184,14 @@ export default function ExerciseCard({
 
 interface EditorProps {
   set: WorkoutSet
+  unit: Unit
   onSave: (weight: number, reps: number) => void
   onDelete: () => void
   onCancel: () => void
 }
 
-function SetEditor({ set, onSave, onDelete, onCancel }: EditorProps) {
-  const [weight, setWeight] = useState(String(Number(set.weight_kg)))
+function SetEditor({ set, unit, onSave, onDelete, onCancel }: EditorProps) {
+  const [weight, setWeight] = useState(String(Number(set.weight)))
   const [reps, setReps] = useState(String(set.reps))
 
   function submit(e: FormEvent) {
@@ -183,8 +203,8 @@ function SetEditor({ set, onSave, onDelete, onCancel }: EditorProps) {
   return (
     <form className="set-editor" onSubmit={submit}>
       <div className="row">
-        <input aria-label="kg" inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} required autoFocus />
-        <span className="muted">×</span>
+        <input aria-label={unit} inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} required autoFocus />
+        <span className="muted">{unit} ×</span>
         <input aria-label="reps" inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} required />
       </div>
       <div className="row">
