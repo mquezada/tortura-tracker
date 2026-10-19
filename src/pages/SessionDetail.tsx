@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import {
   supabase,
@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../auth'
 import { formatDate } from '../dates'
 import ExerciseCard from '../components/ExerciseCard'
+import ExerciseAutocomplete from '../components/ExerciseAutocomplete'
 import ImagePicker, { type ImageChoice } from '../components/ImagePicker'
 import { loadCatalog, type CatalogEntry } from '../exerciseImages'
 
@@ -28,6 +29,9 @@ export default function SessionDetail() {
   // Ejercicios de Free Exercise DB, para sugerir nombres con foto
   const [library, setLibrary] = useState<CatalogEntry[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  const exerciseNames = useMemo(() => catalog.map((x) => x.name), [catalog])
+  const libraryNames = useMemo(() => library.map((x) => x.name), [library])
 
   const loadItems = useCallback(async () => {
     const { data } = await supabase
@@ -81,9 +85,8 @@ export default function SessionDetail() {
     }
   }, [id, userId, loadItems, loadSets])
 
-  async function addExercise(e: FormEvent) {
-    e.preventDefault()
-    const name = newExercise.trim()
+  async function addExercise(rawName: string) {
+    const name = rawName.trim()
     if (!name) return
     setError(null)
 
@@ -186,24 +189,20 @@ export default function SessionDetail() {
         />
       ))}
 
-      <form className="card row" onSubmit={addExercise}>
-        <input
-          className="grow"
-          list="exercise-catalog"
-          placeholder="Agregar ejercicio…"
+      <form
+        className="card row add-exercise"
+        onSubmit={(e) => {
+          e.preventDefault()
+          addExercise(newExercise)
+        }}
+      >
+        <ExerciseAutocomplete
           value={newExercise}
-          onChange={(e) => setNewExercise(e.target.value)}
+          onChange={setNewExercise}
+          onPick={addExercise}
+          mine={exerciseNames}
+          library={libraryNames}
         />
-        <datalist id="exercise-catalog">
-          {catalog.map((x) => (
-            <option key={x.id} value={x.name} />
-          ))}
-          {library
-            .filter((x) => !catalog.some((c) => c.name.toLowerCase() === x.name.toLowerCase()))
-            .map((x) => (
-              <option key={x.folder} value={x.name} />
-            ))}
-        </datalist>
         <button className="primary">Agregar</button>
       </form>
 

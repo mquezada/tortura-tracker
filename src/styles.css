@@ -199,3 +199,27 @@ button:disabled { opacity: 0.6; }
 }
 .results img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; background: var(--card); }
 .emoji-row button.active, .results button.active { border-color: var(--accent); outline: 1px solid var(--accent); }
+
+.add-exercise { align-items: flex-start; }
+.autocomplete { position: relative; display: flex; flex-direction: column; gap: 4px; }
+/* Espacio extra bajo el campo mientras se escribe, para que la lista no quede tapada por el teclado */
+.autocomplete.open { margin-bottom: 50vh; }
+.suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.suggestions button {
+  width: 100%;
+  padding: 10px 8px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--text);
+  text-align: left;
+}
+.suggestions li + li { border-top: 1px solid var(--border); }
+.suggestions button:active { background: var(--card); }
