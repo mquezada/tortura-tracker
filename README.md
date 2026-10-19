@@ -33,7 +33,8 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
 
 ## Cómo se usa
 - **Nueva sesión:** elegir la fecha (y el día de rutina, cuando esté cargada) → *Empezar*.
-- **Agregar ejercicio:** escribir el nombre; se autocompleta con los ya usados.
+- **Agregar ejercicio:** escribir el nombre; se autocompleta con los ya usados y con los de Free Exercise DB
+  (en inglés). Si se elige uno de Free Exercise DB, se crea con su foto.
 - **Anotar serie:** elegir para quién (*Yo* o el otro), kg + reps → *+ Serie*. Los campos quedan con la última
   serie de esa persona para anotar la siguiente rápido.
 - **Editar o borrar una serie:** tocarla. Cualquiera de los dos puede editar las series del otro.

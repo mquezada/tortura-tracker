@@ -12,6 +12,7 @@ import { useAuth } from '../auth'
 import { formatDate } from '../dates'
 import ExerciseCard from '../components/ExerciseCard'
 import ImagePicker, { type ImageChoice } from '../components/ImagePicker'
+import { loadCatalog, type CatalogEntry } from '../exerciseImages'
 
 export default function SessionDetail() {
   const { id = '' } = useParams()
@@ -24,6 +25,8 @@ export default function SessionDetail() {
   const [catalog, setCatalog] = useState<Exercise[]>([])
   const [newExercise, setNewExercise] = useState('')
   const [picking, setPicking] = useState<Exercise | null>(null)
+  // Ejercicios de Free Exercise DB, para sugerir nombres con foto
+  const [library, setLibrary] = useState<CatalogEntry[]>([])
   const [error, setError] = useState<string | null>(null)
 
   const loadItems = useCallback(async () => {
@@ -63,6 +66,7 @@ export default function SessionDetail() {
       .select('id, name, image_path, emoji')
       .order('name')
       .then(({ data }) => setCatalog((data as Exercise[]) ?? []))
+    loadCatalog().then(setLibrary)
     loadItems()
     loadSets()
 
@@ -85,16 +89,18 @@ export default function SessionDetail() {
 
     let exercise = catalog.find((x) => x.name.toLowerCase() === name.toLowerCase())
     if (!exercise) {
+      // Si el nombre es de Free Exercise DB, crearlo con su foto
+      const fromLibrary = library.find((x) => x.name.toLowerCase() === name.toLowerCase())
       const { data, error } = await supabase
         .from('exercises')
-        .insert({ name })
+        .insert(fromLibrary ? { name: fromLibrary.name, image_path: `${fromLibrary.folder}/0.jpg` } : { name })
         .select('id, name, image_path, emoji')
         .single()
       if (error) return setError(error.message)
       exercise = data as Exercise
       setCatalog([...catalog, exercise].sort((a, b) => a.name.localeCompare(b.name)))
-      // Ejercicio nuevo: ofrecer elegirle imagen de inmediato
-      setPicking(exercise)
+      // Ejercicio nuevo sin foto: ofrecer elegirle imagen de inmediato
+      if (!fromLibrary) setPicking(exercise)
     }
     if (items.some((i) => i.exercise_id === exercise.id)) return setNewExercise('')
 
@@ -192,6 +198,11 @@ export default function SessionDetail() {
           {catalog.map((x) => (
             <option key={x.id} value={x.name} />
           ))}
+          {library
+            .filter((x) => !catalog.some((c) => c.name.toLowerCase() === x.name.toLowerCase()))
+            .map((x) => (
+              <option key={x.folder} value={x.name} />
+            ))}
         </datalist>
         <button className="primary">Agregar</button>
       </form>

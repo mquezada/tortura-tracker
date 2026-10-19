@@ -57,7 +57,7 @@ export default function ExerciseCard({
       <header className="topbar">
         <div className="exercise-title">
           <button className="thumb-button" onClick={onOpenImage} aria-label={`Imagen de ${exercise.name}`}>
-            <ExerciseThumb exercise={exercise} />
+            <ExerciseThumb exercise={exercise} size={88} />
           </button>
           <h2>{exercise.name}</h2>
         </div>
