@@ -32,7 +32,9 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
 `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`, y volver a desplegar. Desde el celular: abrir la URL → *Agregar a pantalla de inicio*.
 
 ## Cómo se usa
-- **Nueva sesión:** elegir la fecha (y el día de rutina, cuando esté cargada) → *Empezar*.
+- **Nueva sesión:** elegir la fecha (y el día de rutina, cuando esté cargada) → *Empezar*. Por defecto copia los
+  ejercicios de la última sesión del mismo día de la semana; se puede elegir otra o no copiar. Una sesión vacía
+  también ofrece copiarlos.
 - **Agregar ejercicio:** escribir el nombre; se autocompleta con los ya usados y con los de Free Exercise DB
   (en inglés). Si se elige uno de Free Exercise DB, se crea con su foto.
 - **Anotar serie:** elegir para quién (*Yo* o el otro), kg + reps → *+ Serie*. Los campos quedan con la última
@@ -42,6 +44,10 @@ En [netlify.com](https://netlify.com): *Add new site → Import an existing proj
   [Free Exercise DB](https://github.com/yuhonas/free-exercise-db) (dominio público), o se puede elegir un emoji.
   Tocar la miniatura muestra las fotos en grande y permite cambiarla.
 - **Renombrar un ejercicio:** tocar su nombre en la tarjeta. El cambio se ve en todas las sesiones.
+
+## Caché
+Cada vista guarda en el celular (localStorage) lo último que mostró: al volver a ella se ve al instante y se
+actualiza desde Supabase por detrás. El caché se borra al cerrar sesión.
 
 ## Modelo de datos
 | Tabla | Qué guarda |

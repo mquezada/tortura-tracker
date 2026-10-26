@@ -242,3 +242,5 @@ button:disabled { opacity: 0.6; }
   line-height: 1.6;
 }
 .unit-switch button.active { background: var(--card); color: var(--text); font-weight: 600; }
+
+.stack > p { margin: 0; }

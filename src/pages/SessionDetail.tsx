@@ -15,16 +15,19 @@ import ExerciseCard from '../components/ExerciseCard'
 import ExerciseAutocomplete from '../components/ExerciseAutocomplete'
 import ImagePicker, { type ImageChoice } from '../components/ImagePicker'
 import { loadCatalog, type CatalogEntry } from '../exerciseImages'
+import { readCache, useCachedState } from '../cache'
+import { copyExercises, exerciseNames as namesOf, suggestedSource } from '../sessionsData'
 
 export default function SessionDetail() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const userId = useAuth().session!.user.id
-  const [session, setSession] = useState<Session | null>(null)
-  const [items, setItems] = useState<SessionExercise[]>([])
-  const [sets, setSets] = useState<WorkoutSet[]>([])
-  const [profiles, setProfiles] = useState<Profile[]>([])
-  const [catalog, setCatalog] = useState<Exercise[]>([])
+  const [session, setSession] = useCachedState<Session | null>(`session:${id}`, null)
+  const [items, setItems] = useCachedState<SessionExercise[]>(`items:${id}`, [])
+  const [sets, setSets] = useCachedState<WorkoutSet[]>(`sets:${id}`, [])
+  const [profiles, setProfiles] = useCachedState<Profile[]>('profiles', [])
+  const [catalog, setCatalog] = useCachedState<Exercise[]>('exercises', [])
+  const [copying, setCopying] = useState(false)
   const [newExercise, setNewExercise] = useState('')
   const [picking, setPicking] = useState<Exercise | null>(null)
   // Ejercicios de Free Exercise DB, para sugerir nombres con foto
@@ -41,12 +44,12 @@ export default function SessionDetail() {
       .eq('session_id', id)
       .order('position')
     setItems((data as unknown as SessionExercise[]) ?? [])
-  }, [id])
+  }, [id, setItems])
 
   const loadSets = useCallback(async () => {
     const { data } = await supabase.from('sets').select('*').eq('session_id', id).order('created_at')
     setSets((data as WorkoutSet[]) ?? [])
-  }, [id])
+  }, [id, setSets])
 
   useEffect(() => {
     supabase
@@ -84,7 +87,7 @@ export default function SessionDetail() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [id, userId, loadItems, loadSets])
+  }, [id, userId, loadItems, loadSets, setSession, setProfiles, setCatalog])
 
   async function addExercise(rawName: string) {
     const name = rawName.trim()
@@ -170,6 +173,16 @@ export default function SessionDetail() {
     else loadItems()
   }
 
+  // Para sesiones vacías: ofrecer copiar los ejercicios de la misma sesión de la semana anterior
+  const copySource = session && items.length === 0 ? suggestedSource(readCache<Session[]>('sessions') ?? [], session.date, id) : undefined
+
+  async function copyFromPrevious(fromId: string) {
+    setCopying(true)
+    await copyExercises(fromId, id).catch((e) => setError(e.message))
+    await loadItems()
+    setCopying(false)
+  }
+
   async function deleteSession() {
     if (!confirm('¿Borrar esta sesión y todas sus series (de los dos)?')) return
     const { error } = await supabase.from('sessions').delete().eq('id', id)
@@ -193,6 +206,17 @@ export default function SessionDetail() {
       {session.routine_days && <p className="muted">{session.routine_days.name}</p>}
 
       {error && <p className="error">{error}</p>}
+
+      {copySource && (
+        <section className="card stack">
+          <p className="muted small capitalize">
+            {formatDate(copySource.date)}: {namesOf(copySource).join(' · ')}
+          </p>
+          <button className="primary" disabled={copying} onClick={() => copyFromPrevious(copySource.id)}>
+            Copiar estos ejercicios
+          </button>
+        </section>
+      )}
 
       {items.map((item) => (
         <ExerciseCard

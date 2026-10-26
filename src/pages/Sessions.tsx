@@ -2,43 +2,52 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { supabase, type RoutineDay, type Session } from '../supabase'
 import { formatDate, todayISO } from '../dates'
+import { useCachedState } from '../cache'
+import { copyExercises, exerciseNames, fetchSessions, suggestedSource } from '../sessionsData'
 
 export default function Sessions() {
   const navigate = useNavigate()
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [days, setDays] = useState<RoutineDay[]>([])
+  const [sessions, setSessions] = useCachedState<Session[]>('sessions', [])
+  const [days, setDays] = useCachedState<RoutineDay[]>('routine_days', [])
   const [date, setDate] = useState(todayISO())
   const [dayId, setDayId] = useState('')
+  // null = usar la sugerida; '' = no copiar
+  const [copyFrom, setCopyFrom] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    supabase
-      .from('sessions')
-      .select('id, date, routine_day_id, notes, routine_days(name)')
-      .order('date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) setError(error.message)
-        else setSessions(data as unknown as Session[])
-      })
+    fetchSessions()
+      .then(setSessions)
+      .catch((e) => setError(e.message))
     supabase
       .from('routine_days')
       .select('*')
       .order('position')
       .then(({ data }) => setDays((data as RoutineDay[]) ?? []))
-  }, [])
+  }, [setSessions, setDays])
+
+  const suggested = suggestedSource(sessions, date)
+  const sourceId = copyFrom ?? suggested?.id ?? ''
+  const copyOptions = sessions.filter((s) => s.session_exercises?.length).slice(0, 15)
 
   async function createSession(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    setBusy(true)
     const { data, error } = await supabase
       .from('sessions')
       .insert({ date, routine_day_id: dayId || null })
       .select('id')
       .single()
-    if (error) return setError(error.message)
+    if (error) {
+      setBusy(false)
+      return setError(error.message)
+    }
 
-    if (dayId) {
+    if (sourceId) {
+      await copyExercises(sourceId, data.id).catch((e) => setError(e.message))
+    } else if (dayId) {
       const { data: routine } = await supabase
         .from('routine_exercises')
         .select('exercise_id, position')
@@ -49,6 +58,7 @@ export default function Sessions() {
           .insert(routine.map((r) => ({ session_id: data.id, exercise_id: r.exercise_id, position: r.position })))
       }
     }
+    setBusy(false)
     navigate(`/sesion/${data.id}`)
   }
 
@@ -82,7 +92,25 @@ export default function Sessions() {
             </label>
           )}
         </div>
-        <button className="primary">Empezar</button>
+        {copyOptions.length > 0 && (
+          <label>
+            Copiar ejercicios de
+            <select value={sourceId} onChange={(e) => setCopyFrom(e.target.value)}>
+              <option value="">— No copiar —</option>
+              {copyOptions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {formatDate(s.date)} · {exerciseNames(s).length} ejercicios
+                </option>
+              ))}
+            </select>
+            {sourceId && (
+              <span className="small">{exerciseNames(sessions.find((s) => s.id === sourceId)!).join(' · ')}</span>
+            )}
+          </label>
+        )}
+        <button className="primary" disabled={busy}>
+          Empezar
+        </button>
       </form>
 
       {error && <p className="error">{error}</p>}
@@ -95,6 +123,7 @@ export default function Sessions() {
             <Link to={`/sesion/${s.id}`} className="card link-card">
               <strong className="capitalize">{formatDate(s.date)}</strong>
               {s.routine_days && <span className="muted">{s.routine_days.name}</span>}
+              {exerciseNames(s).length > 0 && <span className="muted small">{exerciseNames(s).join(' · ')}</span>}
             </Link>
           </li>
         ))}

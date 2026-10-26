@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { openedFromPasswordLink, supabase } from './supabase'
+import { clearCache } from './cache'
 
 interface AuthState {
   session: Session | null
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') setRecovering(true)
+      if (event === 'SIGNED_OUT') clearCache()
       setSession(session)
       setLoading(false)
     })

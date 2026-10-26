@@ -40,6 +40,8 @@ export interface Session {
   routine_day_id: string | null
   notes: string | null
   routine_days: { name: string } | null
+  // Solo en la lista de sesiones
+  session_exercises?: { exercise_id: string; position: number; exercises: { name: string } }[]
 }
 
 export interface SessionExercise {
